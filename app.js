@@ -86,7 +86,7 @@ async function parseBoardFile(err, contents) {
 
     fs.readFile(movesFileDir, 'utf8', parseMovesFile)
 
-    console.log(initialBoardSetUp)
+    console.table(initialBoardSetUp)
 }
 
 async function parseMovesFile(err, contents) {
@@ -113,10 +113,143 @@ async function parseMovesFile(err, contents) {
     startGame()
 }
 
+const togglePorts = function() {
+    // toggle ports depending on state
+}
+
+const changeStart = function(row,col) {
+    const curState = initialBoardSetUp[row][col]
+    if (curState.toUpperCase() == 'S') {        
+        initialBoardSetUp[row][col] = '.'
+    }
+}
+
+const toggleKey = function(row,col) {
+    const curState = initialBoardSetUp[row][col];
+    if (curState === 'p') {
+        initialBoardSetUp[row][key] = 'P'
+    } else if (curState === 'P') {
+        initialBoardSetUp[row][key] = 'p'
+    }
+}
+
 const checkNextCell = function(row,col) {
     // console.log(row,col)
     const nextCell = initialBoardSetUp[row][col]
     // console.log('this is what is in the next cell', nextCell)
+    const cellTypes = {
+        '.': 'empty',
+        'x': 'wall',
+        'X': 'wall',
+        'u': 'horizontalMoverUp',
+        'd': 'horizontalMoverDown',
+        'l': 'horizontalMoverLeft',
+        'r': 'horizontalMoverRight',
+        'U': 'verticalMoverUp',
+        'D': 'verticalMoverDown',
+        'L': 'verticalMoverLeft',
+        'R': 'verticalMoverRight',
+        'h': 'closedHorizontalSwitch',
+        'H': 'openHorizontalSwitch',
+        'v': 'closedVerticalSwitch',
+        'V': 'openVerticalSwitch',
+        'k': 'aKey',
+        'K': 'aKey',
+        'p': 'closedPort',
+        'P': 'openPort',
+        't': 'target',
+        'T': 'target',
+        's': 'start',
+        'S': 'start'
+    }
+    const cellType = cellTypes[nextCell]
+    // console.log('cellType', cellType)
+    // console.log('nextCell', nextCell)
+
+    let canMove = false;
+
+    switch(cellType) {
+        case 'empty':
+            canMove = true;
+            break;
+        case 'wall':
+            canMove = false; 
+            break;
+        case 'horizontalMoverUp':
+            //code 
+            canMove = false; 
+            break;
+        case 'horizontalMoverDown':
+            //code 
+            canMove = false; 
+            break;
+        case 'horizontalMoverLeft':
+            //code 
+            canMove = false; 
+            break;
+        case 'horizontalMoverRight':
+            //code 
+            canMove = false; 
+            break;
+        case 'verticalMoverUp':
+            //code 
+            canMove = false; 
+            break;
+        case 'verticalMoverDown':
+            //code 
+            canMove = false; 
+            break;
+        case 'verticalMoverLeft':
+            //code 
+            canMove = false; 
+            break;
+        case 'verticalMoverRight':
+            //code 
+            canMove = false; 
+            break;
+        case 'closedHorizontalSwitch':
+            canMove = false; 
+            //code 
+            break;
+        case 'openHorizontalSwitch':
+            canMove = true;
+            //code 
+            break;
+        case 'closedVerticalSwitch':
+            canMove = false; 
+            //code 
+            break;
+        case 'openVerticalSwitch':
+            canMove = true;
+            //code 
+            break;
+        case 'aKey':
+            canMove = true;
+            togglePorts()
+            toggleKey(row,col)
+            //code 
+            break;
+        case 'closedPort':
+            //code 
+            canMove = false;
+            break;
+        case 'openPort':
+            canMove = true;
+            break;
+        case 'target':
+            canMove = true;
+            break;
+        case 'start':
+            canMove = true;
+            changeStart(row,col)
+            break;
+        default:
+            console.log("You really shouldn't ever see this...")
+            break;    
+
+    }
+    // console.log(cellTypes[nextCell])
+    return {canMove, cellType}
 }
 
 const moveToLeft = function(curPos) {
@@ -126,8 +259,20 @@ const moveToLeft = function(curPos) {
         // console.log('move has no effect')
         return([curPos[0],curPos[1]])
     } else {
-        checkNextCell(newRow,newCol)
-        return([newRow, newCol])
+        let ans = checkNextCell(newRow,newCol)
+        if (ans.canMove) {
+            if (ans.cellType == 'target') {
+                console.log('you win')
+            }
+            return([newRow, newCol])
+        } else {
+            if (ans.cellType.indexOf('Mover') >=0) {
+                console.log(ans)
+                console.log('in move to left and it should show if mover move')
+                // it was a mover. Just can't move there. Not over
+                return([curPos[0],curPos[1]])
+            }
+        }
     }
     
 }
@@ -139,62 +284,99 @@ const moveToRight = function(curPos) {
         // console.log('move has no effect')
         return([curPos[0],curPos[1]])
     } else {
-        checkNextCell(newRow,newCol)
-        return([newRow, newCol])
+        let ans = checkNextCell(newRow,newCol)
+        if (ans.canMove) {
+            if (ans.cellType == 'target') {
+                console.log('you win')
+            }
+            return([newRow, newCol])
+        } else {    
+            if (ans.cellType.indexOf('Mover') >=0) {
+                console.log(ans)
+                console.log('in move to right and it should show if mover move')
+                // it was a mover. Just can't move there. Not over
+                return([curPos[0],curPos[1]])
+            }
+        }
     }
-    
-    // console.log('shockingly that worked right', curPos)
 }
 
 const moveDown = function(curPos) {
     let newRow = (curPos[0]+1)
     let newCol = (curPos[1])
     if (newRow >= (maxRows)) {
-        // needToWrap bottom to top
-        // if we wrapping from bottom to top, we just going to the first row right? 
-        // so then newRow would = 0
         newRow = 0
         return([newRow,newCol])
     } else {
-        checkNextCell(newRow,newCol)
-        return([newRow, newCol])
+        let ans = checkNextCell(newRow,newCol)
+        if (ans.canMove) {
+            if (ans.cellType == 'target') {
+                console.log('you win')
+            }
+            return([newRow, newCol])
+        } else {
+            if (ans.cellType.indexOf('Mover') >=0) {
+                console.log(ans)
+                console.log('in move down and it should show if mover move')
+                // it was a mover. Just can't move there. Not over
+                return([curPos[0],curPos[1]])
+            }
+        }
     }
-    
-    // console.log('shockingly that worked down', curPos)
 }
 
 const moveUp = function(curPos) {
     let newRow = (curPos[0]-1)
     let newCol = (curPos[1])
     if (newRow < 0) {
-        // console.log('should wrap')
-        // need to wrap
         newRow = maxRows-1
         return([newRow,newCol])
     } else {
-        // console.log('moveUp' + newRow + newCol)
-        checkNextCell(newRow,newCol)
-        return([newRow, newCol])
+        let ans = checkNextCell(newRow,newCol)
+        if (ans.canMove) {
+            if (ans.cellType == 'target') {
+                console.log('you win')
+            }
+            return([newRow, newCol])
+        } else {
+            if (ans.cellType.indexOf('Mover') >=0) {
+                console.log(ans)
+                console.log('in move up and it should show if mover move')
+                // it was a mover. Just can't move there. Not over
+                return([curPos[0],curPos[1]])
+            }
+        }
     }
-    
-    // console.log('shockingly that worked up', newRow, newCol)
 }
 
 const quitGame = function(curPos) {
     console.log('shockingly that worked', curPos)
 }
 
+const toggleCellsWithNewPlayerPos = function(oldRow, oldCol, newRow,newCol) {
+    // console.log(oldRow,oldCol)
+    // console.log(newRow,newCol)
+    initialBoardSetUp[oldRow][oldCol] = '.'
+    initialBoardSetUp[newRow][newCol] = 'Y'
+}
 
 async function startGame() {
     console.log('starting game')
     let currentPos = initialStartingPos
     for (let i=0; i<initialMoves.length; i++) {
         try {
-            // console.log('the move before operation', initialMoves[i])
+            console.log('#######################################################################################')
+            const oldRow = currentPos[0]
+            const oldCol = currentPos[1]
             let newPos = await movePiece(currentPos, initialMoves[i])
-            console.log('the new pos', newPos)
-           
+            // console.log('the new pos', newPos)
             currentPos = newPos
+            console.log(currentPos)
+            const row = newPos[0]
+            const col = newPos[1]
+            toggleCellsWithNewPlayerPos(oldRow,oldCol,row, col)
+            console.table(initialBoardSetUp)
+            console.log('#######################################################################################')
         } catch (e) {
             console.error(e)
         }
@@ -204,6 +386,7 @@ async function startGame() {
 }
 
 const movePiece = function(currentPos, moveType) {
+    // console.log('in move piece, currentPos is', currentPos)
     const movesMap = {
         h: 'moveToLeft',
         l: 'moveToRight',

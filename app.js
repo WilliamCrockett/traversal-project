@@ -13,14 +13,21 @@ const movesFileDir = args[1]
 // globals
 let boardTitle = null
 let initialBoardSetUp = []
+let initialMoves = []
 
 // console.log(args)
 
-fs.readFile(boardFileDir, 'utf8', processBoardFile)
+fs.readFile(boardFileDir, 'utf8', parseBoardFile)
+fs.readFile(movesFileDir, 'utf8', parseMovesFile)
 
 // process imported board file
-async function processBoardFile(err, contents) {
-    // split per line into array
+async function parseBoardFile(err, contents) {
+    if (err) {
+        console.log("there's an error reading the board file:", err)
+        console.log('exiting')
+        return
+    }
+    // split per line into array. 
     let boardContents = contents.split('\r\n')
 
     boardTitle = boardContents[0]
@@ -61,17 +68,13 @@ async function processBoardFile(err, contents) {
     }
 
     // validate that we're dealing with valid rows...
-    const allowedChars = '.sStTxXudlrUDLRhHvVkKpP'
-    for (row of actualBoardInfo) {
-        
-    }
-
+    const allowedCharsBoard = '.sStTxXudlrUDLRhHvVkKpP'
     let populatedBoard = []
 
     for (row of actualBoardInfo) {
         let newArr = row.split('')
         for (char of newArr) {
-            if (allowedChars.indexOf(char) == -1) {
+            if (allowedCharsBoard.indexOf(char) == -1) {
                 console.log('illegal character in row:', char)
                 console.log('exiting...')
                 return
@@ -82,7 +85,30 @@ async function processBoardFile(err, contents) {
 
     initialBoardSetUp = populatedBoard
 
-    console.log(initialBoardSetUp)
+    // console.log(initialBoardSetUp)
+}
 
+async function parseMovesFile(err, contents) {
+    // return if read error
+    if (err) {
+        console.log("there's an error reading the board file:", err)
+        console.log('exiting')
+        return
+    }
+
+    const allowedCharsMoves = 'hljkx'
+
+    const lineAsArray = contents.split('')
+
+    for (char of lineAsArray) {
+        if (allowedCharsMoves.indexOf(char) == -1) {
+            console.log('illegal character in moves file:', char)
+            console.log('exiting')
+            return
+        }
+    }
+
+    initialMoves = contents
+    console.log('the initial moves', initialMoves)
 }
 

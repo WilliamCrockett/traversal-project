@@ -16,5 +16,5 @@ TODO: moves file can contain illegal moves. Prob best to strip out, rather than 
 ## to run
 
 #### install nodejs (https://nodejs.org/dist/v12.16.2/node-v12.16.2-x64.msi) !Make sure you check the add to PATH box
-#### checkout the code fromg ithub
-#### `node app.js <boardFile> <movesFiles>`
+#### checkout the code from github
+#### in cmd line: `node app.js <boardFile> <movesFiles>`

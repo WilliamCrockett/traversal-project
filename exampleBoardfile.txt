@@ -1,0 +1,5 @@
+First moves
+3 10
+.U...UxU..
+sUDxDUxUDt
+..DxD...D.
